@@ -1,8 +1,8 @@
 import express, { json } from 'express';
 import cors from 'cors';
-import connectDB from './config/db';
-import authRoutes from './routes/authRoutes';
-import expenseRoutes from './routes/expenseRoutes';
+import connectDB from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
+import expenseRoutes from './routes/expenseRoutes.js';
 import { config } from 'dotenv';
 
 config();

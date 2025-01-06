@@ -1,5 +1,5 @@
  
-import Expense, { find, findByIdAndUpdate, findByIdAndDelete } from '../models/expenseModel';
+import Expense, { find, findByIdAndUpdate, findByIdAndDelete } from '../models/expenseModel.js';
 
 export async function createExpense(req, res) {
     const { description, amount, category } = req.body;
