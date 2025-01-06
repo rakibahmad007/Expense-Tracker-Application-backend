@@ -1,15 +1,11 @@
-import { Router } from 'express';
-import { createExpense, getExpenses, updateExpense, deleteExpense } from '../controllers/expenseController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import express from 'express';
+import { getExpenses, deleteExpense, createExpense } from '../controllers/expenseController.js';
 
-const router = Router();
+const router = express.Router();
 
-router.route('/')
-    .post(protect, createExpense)
-    .get(protect, getExpenses);
-
-router.route('/:id')
-    .put(protect, updateExpense)
-    .delete(protect, deleteExpense);
+// Routes without authentication
+router.get('/', getExpenses);
+router.post('/', createExpense);
+router.delete('/:id', deleteExpense);
 
 export default router;

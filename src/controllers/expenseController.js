@@ -1,52 +1,39 @@
- 
-import Expense, { find, findByIdAndUpdate, findByIdAndDelete } from '../models/expenseModel.js';
+import Expense from '../models/expenseModel.js';
 
-export async function createExpense(req, res) {
+// Get all expenses (for all users)
+export const getExpenses = async (req, res) => {
+    try {
+        const expenses = await Expense.find({}); // Fetch all expenses
+        res.status(200).json(expenses);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+// Create a new expense
+export const createExpense = async (req, res) => {
     const { description, amount, category } = req.body;
     try {
         const expense = new Expense({
-            user: req.user.id,
+            user: '64f8e4b1c7a9f8a1f8e4b1c7', // Hardcoded user ID
             description,
             amount,
-            category
+            category,
         });
         await expense.save();
         res.status(201).json(expense);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
-}
+};
 
-export async function getExpenses(req, res) {
-    try {
-        const expenses = await find({ user: req.user.id });
-        res.status(200).json(expenses);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-}
-
-export async function updateExpense(req, res) {
-    const { id } = req.params;
-    const { description, amount, category } = req.body;
-    try {
-        const expense = await findByIdAndUpdate(
-            id,
-            { description, amount, category },
-            { new: true }
-        );
-        res.status(200).json(expense);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-}
-
-export async function deleteExpense(req, res) {
+// Delete an expense
+export const deleteExpense = async (req, res) => {
     const { id } = req.params;
     try {
-        await findByIdAndDelete(id);
+        await Expense.findByIdAndDelete(id);
         res.status(200).json({ message: 'Expense deleted' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
-}
+};
