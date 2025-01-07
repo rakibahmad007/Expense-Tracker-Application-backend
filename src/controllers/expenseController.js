@@ -1,39 +1,47 @@
-import Expense from '../models/expenseModel.js';
+import Expense from "../models/expenseModel.js";
 
 // Get all expenses (for all users)
 export const getExpenses = async (req, res) => {
-    try {
-        const expenses = await Expense.find({}); // Fetch all expenses
-        res.status(200).json(expenses);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
+  try {
+    const userId = req.user.id;
+    console.log(userId);
+    const expenses = await Expense.find({ user: userId });
+    res.status(200).json(expenses);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 // Create a new expense
 export const createExpense = async (req, res) => {
-    const { description, amount, category } = req.body;
-    try {
-        const expense = new Expense({
-            user: '64f8e4b1c7a9f8a1f8e4b1c7', // Hardcoded user ID
-            description,
-            amount,
-            category,
-        });
-        await expense.save();
-        res.status(201).json(expense);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
+  const { description, amount, category } = req.body;
+  try {
+    const expense = new Expense({
+      user: req.user.id,
+      description,
+      amount,
+      category,
+    });
+    await expense.save();
+    res.status(201).json(expense);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 // Delete an expense
 export const deleteExpense = async (req, res) => {
+  try {
     const { id } = req.params;
-    try {
-        await Expense.findByIdAndDelete(id);
-        res.status(200).json({ message: 'Expense deleted' });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
+    const userId = req.user.id;
+    const expense = await Expense.findOne({
+      _id: id,
+      user: userId,
+    });
+
+    await expense.deleteOne();
+    res.status(200).json({ message: "Expense deleted" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
