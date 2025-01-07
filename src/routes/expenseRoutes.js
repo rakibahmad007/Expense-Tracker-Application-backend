@@ -1,5 +1,5 @@
 import express from 'express';
-import { getExpenses, deleteExpense, createExpense } from '../controllers/expenseController.js';
+import { getExpenses, deleteExpense, createExpense, updateExpense } from '../controllers/expenseController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -9,6 +9,8 @@ router.use(protect);
 router.get('/', getExpenses);
 router.post('/', createExpense);
 router.delete('/:id', deleteExpense);
+router.put('/:id', updateExpense);
+
 
 
 

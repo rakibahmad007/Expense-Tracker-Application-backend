@@ -14,14 +14,16 @@ export const getExpenses = async (req, res) => {
 
 // Create a new expense
 export const createExpense = async (req, res) => {
-  const { description, amount, category } = req.body;
+  const { description, amount, category, date } = req.body;
   try {
     const expense = new Expense({
       user: req.user.id,
       description,
       amount,
       category,
+      date
     });
+    console.log(expense);
     await expense.save();
     res.status(201).json(expense);
   } catch (error) {
@@ -48,3 +50,16 @@ export const deleteExpense = async (req, res) => {
 
   
 };
+export const updateExpense = async (req, res) => {
+    try {
+        const { id } = req.params;
+console.log("hitUpdate");
+const updatedExpense=      await Expense.findByIdAndUpdate( id , req.body, {new: true, useFIndAndModify: false});
+
+      
+      res.status(201).json(updatedExpense);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  };
+  
