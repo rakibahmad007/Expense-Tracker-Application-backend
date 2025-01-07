@@ -1,53 +1,64 @@
-import User from '../models/userModel.js'; // Use .js extension
+import User from '../models/userModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-// Register function
+// Register a new user
 export const register = async (req, res) => {
-    const { email, username, password } = req.body;
-    try {
-        // Hash the password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+  const { email, username, password } = req.body;
 
-        // Create new user
-        const user = new User({ email, username, password: hashedPassword });
-        await user.save();
-
-        // Generate JWT token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(201).json({ token });
-    } catch (error) {
-        console.error('Registration error:', error);
-        if (error.name === 'ValidationError') {
-            // Handle Mongoose validation errors
-            return res.status(400).json({ error: error.message });
-        } else if (error.code === 11000) {
-            // Handle duplicate key errors (e.g., duplicate email)
-            return res.status(400).json({ error: 'Email already exists' });
-        } else {
-            // Handle other errors
-            res.status(400).json({ error: error.message });
-        }
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already exists' });
     }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    console.log('Hashed Password:', hashedPassword); // Debug log
+
+    // Create new user
+    const user = new User({ email, username, password: hashedPassword });
+    await user.save();
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+
+    res.status(201).json({ token });
+  } catch (error) {
+    console.error('Registration error:', error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    } else if (error.code === 11000) {
+      return res.status(400).json({ error: 'Email already exists' });
+    } else {
+      res.status(500).json({ error: 'Server error' });
+    }
+  }
 };
 
-// Login function
+// Login a user (without password validation)
 export const login = async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(400).json({ error: error.message });
+  const { email } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 };
