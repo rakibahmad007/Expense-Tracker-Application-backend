@@ -51,15 +51,26 @@ export const deleteExpense = async (req, res) => {
   
 };
 export const updateExpense = async (req, res) => {
-    try {
-        const { id } = req.params;
-console.log("hitUpdate");
-const updatedExpense=      await Expense.findByIdAndUpdate( id , req.body, {new: true, useFIndAndModify: false});
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
 
-      
-      res.status(201).json(updatedExpense);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+    // Find the expense and ensure it belongs to the authenticated user
+    const expense = await Expense.findOne({ _id: id, user: userId });
+
+    if (!expense) {
+      return res.status(404).json({ error: "Expense not found" });
     }
-  };
-  
+
+    // Update the expense
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true, useFindAndModify: false }
+    );
+
+    res.status(200).json(updatedExpense);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
