@@ -42,7 +42,7 @@ export const deleteExpense = async (req, res) => {
     });
 
     await expense.deleteOne();
-    res.status(200).json({ message: "Expense deleted" });
+    res.status(200).json(expense);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
