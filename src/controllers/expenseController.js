@@ -31,7 +31,7 @@ export const createExpense = async (req, res) => {
   }
 };
 
-// Delete an expense
+// Delete an expense from the database
 export const deleteExpense = async (req, res) => {
   try {
     const { id } = req.params;
